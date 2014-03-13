@@ -9,7 +9,7 @@ conn = PG::Connection.open(dbname: 'postgres', port: '5432',
   user: db_username, password: db_password, host: db_hostname)
 
 # Conduct a basic SELECT to see if our env_vars database exists
-q = 'SELECT datname FROM pg_database WHERE datname = "env_vars"'
+q = "SELECT datname FROM pg_database WHERE datname = 'env_vars'"
 if conn.exec(q).count == 0 # if it exists, don't do the following
   conn.exec('CREATE DATABASE env_vars')
   conn.exec('ALTER DATABASE env_vars OWNER TO deploy')
