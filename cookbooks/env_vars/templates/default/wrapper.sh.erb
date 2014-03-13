@@ -3,5 +3,6 @@
 # to execute the pgsetup.rb file. Starts by installing the 'pg' gem.
 source /etc/profile
 source /home/deploy/.bashrc
-/usr/bin/gem install pg -v '<%= @pg_version %>'
+/usr/bin/ruby -e "require 'rubygems'; require 'pg'" &> /dev/null
+if [ $? -ne 0 ] then /usr/bin/sudo /usr/bin/gem install pg -v '<%= @pg_version %>'; fi
 # /usr/bin/ruby /home/deploy/pgsetup.rb
