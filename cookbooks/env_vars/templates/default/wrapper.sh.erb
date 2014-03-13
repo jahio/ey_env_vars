@@ -1,0 +1,7 @@
+#!/bin/bash
+# Simple wrapper script to make sure we use the right version of Ruby
+# to execute the pgsetup.rb file. Starts by installing the 'pg' gem.
+source /etc/profile
+source /home/deploy/.bashrc
+/usr/bin/gem install pg -v '<%= @pg_version %>'
+# /usr/bin/ruby /home/deploy/pgsetup.rb

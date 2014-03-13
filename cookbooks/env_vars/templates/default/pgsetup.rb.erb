@@ -1,0 +1,27 @@
+require 'rubygems'
+require 'pg'
+
+db_username = '<%= @db_username %>'
+db_password = '<%= @db_password %>'
+db_hostname = '<%= @db_hostname %>'
+
+conn = PG::Connection.open(dbname: 'postgres', port: '5432',
+  user: db_username, password: db_password, host: db_hostname)
+
+# Conduct a basic SELECT to see if our env_vars database exists
+q = 'SELECT datname FROM pg_database'
+unless conn.exec(q).count == 0 # if it exists, don't do the following
+  conn.exec('CREATE DATABASE env_vars')
+  conn.exec('ALTER DATABASE env_vars OWNER TO deploy')
+end
+
+# Disconnect from the postgres database and reconnect to the env_vars db
+conn.close
+conn = PG::Connection.open(dbname: 'env_vars', port: '5432',
+  user: db_username, password: db_password, host: db_hostname)
+
+# Create the table if it doesn't exist
+q = 'CREATE TABLE IF NOT EXISTS variables(var varchar(255) not null
+  primary key, val varchar(255))'
+res = conn.exec(q)
+conn.flush && conn.close # flush everything and clean up
