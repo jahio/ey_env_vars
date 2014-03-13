@@ -26,4 +26,10 @@ why there's no facility for it here.
 3. Use the [Engine Yard Gem](http://rubygems.org/gems/engineyard) to upload
 and run those recipes: ```ey recipes upload -c <acct name> -e <env name> --apply```
 
+## Resources for the curious
+- [Engine Yard Chef Docs](https://support.cloud.engineyard.com/entries/21009867-Customize-Your-Environment-with-Chef-Recipes)
+- [Engine Yard Chef Best Practices](https://support.cloud.engineyard.com/entries/21406977-Custom-Chef-Recipes-Examples-Best-Practices)
+- Engine Yard uses ```chef-solo``` on EY Cloud without chef-server. Just know that.
+- [Chef](http://getchef.com) (formerly known as OpsCode)
+
 License: MIT.
