@@ -9,8 +9,8 @@
 #
 # WARNING: As of right now, this recipe only supports PostgreSQL on EY Cloud.
 
-# Run this on the app master because it should have a complete Ruby environment.
-if node[:instance_role] == 'app_master'
+# Run this on an app or util because it should have a complete Ruby environment.
+if ['app', 'app_master', 'util'].include?(node[:instance_role])
   # Start with writing a wrapper shell script that will call the right version
   # of RubyGems and install PG from inside there.
   template "/home/deploy/pgsetup.sh" do
@@ -41,7 +41,9 @@ if node[:instance_role] == 'app_master'
   execute "install-env-vars-db" do
     command "/bin/bash /home/deploy/pgsetup.sh"
   end
+end
 
+if ['app', 'app_master'].include?(node[:instance_role])
   # tell the EY bash script to restart the application workers
   app_name = node[:applications].keys.first
   execute "restart-app-workers" do
