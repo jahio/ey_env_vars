@@ -31,15 +31,20 @@ if node[:instance_role] == 'app_master'
     variables({
       :db_username => node[:users].first["username"],
       :db_password => node[:users].first["password"],
-      :db_hostname => node[:db_host]
+      :db_hostname => node[:db_host],
+      :app_name    => node[:applications].keys.first
     })
-    notifies :run, "execute[install-env-vars-db]", :delayed
   end
 
-  # Finally, run the bash wrapper script after the above have been written
+  # run the bash wrapper script after the above have been written
   # to disk.
   execute "install-env-vars-db" do
     command "/bin/bash /home/deploy/pgsetup.sh"
-    action :nothing
+  end
+
+  # tell the EY bash script to restart the application workers
+  app_name = node[:applications].keys.first
+  execute "restart-app-workers" do
+    command "sudo -u deploy /engineyard/bin/app_#{app_name} deploy"
   end
 end

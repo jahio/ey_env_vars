@@ -24,4 +24,14 @@ conn = PG::Connection.open(dbname: 'env_vars', port: '5432',
 q = 'CREATE TABLE IF NOT EXISTS variables(var varchar(255) not null
   primary key, val varchar(255))'
 res = conn.exec(q)
+
+# Next, look for variables inside the table and write them out to env.custom.
+res = conn.exec('SELECT var, val FROM variables')
+File.open("/data/<%= @app_name %>/shared/config/env.custom", "w") do |f|
+  res.each do |pair|
+    f.puts "#{pair['var'].upcase}='#{pair['val']}'"
+  end
+end
+
+
 conn.flush && conn.close # flush everything and clean up
