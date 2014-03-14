@@ -29,7 +29,7 @@ res = conn.exec(q)
 res = conn.exec('SELECT var, val FROM variables')
 File.open("/data/<%= @app_name %>/shared/config/env.custom", "w") do |f|
   res.each do |pair|
-    f.puts "#{pair['var'].upcase}='#{pair['val']}'"
+    f.puts "#{pair['var']}='#{pair['val']}'"
   end
 end
 
