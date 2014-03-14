@@ -53,7 +53,8 @@ database console.
 Next you want to run some insert statements to create your env variables:
 
 ```sql
-INSERT INTO variables (var, val) VALUES ('myvar', 'myval');```
+INSERT INTO variables (var, val) VALUES ('myvar', 'myval');
+```
 
 For example, if you wanted to specify a different location for the
 [Unicorn](http://unicorn.bogomips.org) configuration path:
