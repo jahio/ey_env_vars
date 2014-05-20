@@ -1,37 +1,40 @@
 require 'rubygems'
+require 'yaml'
 require 'pg'
 
-db_username = '<%= @db_username %>'
-db_password = '<%= @db_password %>'
-db_hostname = '<%= @db_hostname %>'
+db_creds = YAML.load(File.read(File.join('', 'data', '<%= @app_name %>',
+           'shared', 'config', 'database.yml')))
 
+# Sets up the database itself if it doesn't yet exist. Otherwise won't
+# touch it.
 conn = PG::Connection.open(dbname: 'postgres', port: '5432',
-  user: db_username, password: db_password, host: db_hostname)
+  user:     db_creds['<%= @run_env %>']['username'],
+  password: db_creds['<%= @run_env %>']['password'],
+  host:     db_creds['<%= @run_env %>']['host'])
 
-# Conduct a basic SELECT to see if our env_vars database exists
-q = "SELECT datname FROM pg_database WHERE datname = 'env_vars'"
-if conn.exec(q).count == 0 # if it exists, don't do the following
-  conn.exec('CREATE DATABASE env_vars')
-  conn.exec('ALTER DATABASE env_vars OWNER TO deploy')
-end
-
-# Disconnect from the postgres database and reconnect to the env_vars db
-conn.close
-conn = PG::Connection.open(dbname: 'env_vars', port: '5432',
-  user: db_username, password: db_password, host: db_hostname)
-
-# Create the table if it doesn't exist
-q = 'CREATE TABLE IF NOT EXISTS variables(var varchar(255) not null
-  primary key, val varchar(255))'
-res = conn.exec(q)
-
-# Next, look for variables inside the table and write them out to env.custom.
-res = conn.exec('SELECT var, val FROM variables')
-File.open("/data/<%= @app_name %>/shared/config/env.custom", "w") do |f|
-  res.each do |pair|
-    f.puts "#{pair['var']}='#{pair['val']}'"
+begin
+  # Conduct a basic SELECT to see if our env_vars database exists
+  q = "SELECT datname FROM pg_database WHERE datname = 'env_vars'"
+  if conn.exec(q).count == 0 # if it exists, don't do the following
+    conn.exec("CREATE DATABASE env_vars OWNER
+              #{db_creds['<%= @run_env %>']['username']}")
   end
+ensure
+  conn.flush && conn.close # make sure to flush/close for changes
 end
 
-
-conn.flush && conn.close # flush everything and clean up
+# Now, re-connect to the db (there doesn't appear to be an easy way to
+# switch to a different db on the same connection object) and create the table
+conn = PG::Connection.open(dbname: 'env_vars', port: '5432',
+  user:     db_creds['<%= @run_env %>']['username'],
+  password: db_creds['<%= @run_env %>']['password'],
+  host:     db_creds['<%= @run_env %>']['host'])
+begin
+  conn.exec('CREATE TABLE IF NOT EXISTS environment_variables(
+        variable_name  varchar(255) NOT NULL PRIMARY KEY,
+        variable_value varchar(255)
+      )')
+ensure
+  # Flush and close
+  conn.flush && conn.close
+end

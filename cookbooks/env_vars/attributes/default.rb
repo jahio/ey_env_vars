@@ -1,1 +1,1 @@
-default[:pg_version] = '~> 0.17.1'
+default[:pg_gem_version] = '~> 0.17.1'

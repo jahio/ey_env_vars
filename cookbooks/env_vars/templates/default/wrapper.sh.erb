@@ -4,5 +4,5 @@
 source /etc/profile
 source /home/deploy/.bashrc
 /usr/bin/ruby -e "require 'rubygems'; require 'pg'" &> /dev/null
-if [ $? -ne 0 ] ; then /usr/bin/gem install pg -v '<%= @pg_version %>'; fi
+if [ $? -ne 0 ] ; then /usr/bin/gem install pg -v '<%= @pg_gem_version %>'; fi
 /usr/bin/ruby /home/deploy/pgsetup.rb
